@@ -10,12 +10,44 @@ const pendingActions=new Map();
 const timings=[]; // Local timing observations only: no tokens, names or payloads.
 window.GHIE_TIMINGS=timings;
 let busyControls=[];
+const REQUEST_TIMEOUT_MS=25000; // Approved backend timeout remains unchanged.
+let activeRequest=null;
+function showResumeNotice(message){
+ const panel=el('resumeNotice');if(!panel)return;
+ el('resumeMessage').textContent=message;
+ hide('resumeNotice',false);
+}
+function recoverStaleRequest(reason,force=false){
+ if(typeof document!=='undefined'&&document.visibilityState==='hidden')return;
+ const request=activeRequest;
+ if(request){
+  const elapsed=Date.now()-request.startedWall;
+  if(force||elapsed>=REQUEST_TIMEOUT_MS){
+   request.interrupt(); // Only cancels local waiting, never replays a server mutation.
+   if(!['confirm','correct','review'].includes(request.op))showResumeNotice('The previous request may have been interrupted while your browser was inactive. You can try loading your record again or sign in again.');
+  }
+ }else if(busy){
+  // Defensive recovery for an orphaned spinner; ordinary send() always has activeRequest.
+  busy=false;hide('activity');lockControls(false);
+  showResumeNotice('The previous loading state was interrupted. You can try loading again or sign in again.');
+ }
+}
+function handlePageReturn(event){
+ if(event?.persisted)recoverStaleRequest('back-forward cache',true);
+ else recoverStaleRequest('pageshow');
+}
+function handleVisibilityChange(){
+ if(document.visibilityState==='hidden')return;
+ recoverStaleRequest('visible');
+}
+function handlePageResume(){recoverStaleRequest('resume');}
+
 function uuid(){return crypto.randomUUID().replaceAll('-','');}
 function esc(s){return String(s??'');}
 function node(tag,txt,cls){const e=document.createElement(tag);if(txt!==undefined)e.textContent=esc(txt);if(cls)e.className=cls;return e;}
 function hide(id,yes=true){if(typeof document.getElementById!=='function')return;const target=el(id);if(target?.classList){if(typeof target.classList.toggle==='function')target.classList.toggle('hide',yes);else if(yes)target.classList.add('hide');else target.classList.remove('hide');}}
 function intentFor(op,data){const previous=pendingActions.get(op);if(previous){if(JSON.stringify(previous.data)!==JSON.stringify(data))throw Error('A previous '+op+' request has an uncertain outcome. Retry the same request before changing its values.');return previous;}const intent={operationId:uuid(),data:JSON.parse(JSON.stringify(data))};pendingActions.set(op,intent);return intent;}
-function isUncertain(err){return /timed out|connection|network|backend deployment/i.test(String(err.message||''));}
+function isUncertain(err){return /timed out|interrupted|connection|network|backend deployment/i.test(String(err.message||''));}
 function timeNow(){return typeof performance!=='undefined'&&performance.now?performance.now():Date.now();}
 function observe(op,started,outcome){const ms=Math.round(timeNow()-started);timings.push({operation:op,milliseconds:ms,outcome});if(timings.length>30)timings.shift();if(typeof location!=='undefined'&&new URLSearchParams(location.search).has('timing'))console.info('[GhIE timing]',op,ms+'ms',outcome);}
 function lockControls(locked){
@@ -100,27 +132,54 @@ function send(op,payload={}){
  if(!config.endpoint||!config.endpoint.startsWith('https://script.google.com/macros/s/'))return Promise.reject(Error('Invalid backend configuration'));
  const started=timeNow();
  return new Promise((resolve,reject)=>{
+  let settled=false;
+  const request={op,startedWall:Date.now(),interrupt:()=>finish('interrupted',null,Error('Request interrupted after browser suspension. Please check its status before trying again.'))};
+  activeRequest=request;
   busy=true;activityFor(op);
-  const slow=setTimeout(()=>{if(el('activityHint'))el('activityHint').textContent='The TEST Google service is taking longer than usual. Your request is still processing.';},6500);
-  const later=setTimeout(()=>{if(el('activityHint'))el('activityHint').textContent='Still waiting for the backend. Do not submit the action again yet.';},16000);
-  const timer=setTimeout(()=>{cleanup('timeout');reject(Error('Request timed out. Check your connection or backend deployment.'));},25000);
-  function cleanup(outcome){clearTimeout(timer);clearTimeout(slow);clearTimeout(later);window.removeEventListener('message',onMsg);busy=false;hide('activity');lockControls(false);observe(op,started,outcome);}
-  function onMsg(event){if(!isExpectedBridgeResponse(event,nonce))return;const v=event.data;cleanup(v.ok?'ack':'error');v.ok?resolve(v.value):reject(Error(v.error||'Request failed'));}
+  const slow=setTimeout(()=>{if(!settled&&el('activityHint'))el('activityHint').textContent='The TEST Google service is taking longer than usual. Your request is still processing.';},6500);
+  const later=setTimeout(()=>{if(!settled&&el('activityHint'))el('activityHint').textContent='Still waiting for the backend. Do not submit the action again yet.';},16000);
+  const timer=setTimeout(()=>finish('timeout',null,Error('Request timed out. Check your connection or backend deployment.')),REQUEST_TIMEOUT_MS);
+  function finish(outcome,value,error){
+   if(settled)return;
+   settled=true;
+   clearTimeout(timer);clearTimeout(slow);clearTimeout(later);
+   window.removeEventListener('message',onMsg);
+   if(activeRequest===request)activeRequest=null;
+   busy=false;hide('activity');lockControls(false);observe(op,started,outcome);
+   if(error)reject(error);else resolve(value);
+  }
+  function onMsg(event){
+   if(!isExpectedBridgeResponse(event,nonce))return;
+   const v=event.data;finish(v.ok?'ack':'error',v.value,v.ok?null:Error(v.error||'Request failed'));
+  }
   window.addEventListener('message',onMsg);
   try{transport.action=config.endpoint;el('payload').value=JSON.stringify({op,token:credential,nonce,...payload});transport.submit();}
-  catch(err){cleanup('transport-error');reject(Error('Network or backend deployment error'));}
+  catch(_){finish('transport-error',null,Error('Network or backend deployment error'));}
  });
 }
 async function reload({preserveFeedback=false}={}){
- const data=await send('mine');render(data);if(admin)await loadAdmin();
+ const data=await send('mine');render(data);hide('resumeNotice');if(admin)await loadAdmin();
  if(!preserveFeedback)clearFeedback();
  return data;
 }
+async function loadSignedInRecord(){
+ hide('resumeNotice');hide('login');hide('loadingView',false);
+ try{await reload();hide('resumeNotice');}
+ catch(err){
+  hide('loadingView');hide('profile');hide('admin');hide('login',false);
+  document.body.classList.remove('signed-in');account=null;admin=false;
+  if(isUncertain(err)&&credential){
+   showResumeNotice('We could not finish loading your information. Try loading again, or sign in again. No verification or correction was submitted.');
+  }else{
+   credential=null;showResumeNotice('The current sign-in could not be verified. Please sign in again.');
+  }
+  alertUI('Unable to load the verified record. '+err.message,true);
+ }
+}
 async function handleAuth(response){
- if(busy)return;pendingActions.clear();clearFeedback();credential=response.credential;
- hide('login');hide('loadingView',false);
- try{await reload();}
- catch(err){credential=null;account=null;admin=false;hide('loadingView');hide('profile');hide('admin');hide('login',false);document.body.classList.remove('signed-in');alertUI('Unable to load the verified record. '+err.message,true);}
+ if(busy){recoverStaleRequest('Google sign-in');if(busy)return;}
+ pendingActions.clear();clearFeedback();credential=response.credential;
+ await loadSignedInRecord();
 }
 function outside(){const outsideGhana=el('region').value==='Outside Ghana';hide('outside',!outsideGhana);el('country').required=outsideGhana;}
 async function operate(op,data){
@@ -174,6 +233,15 @@ async function loadAdmin(){
  }catch(err){alertUI(err.message,true);throw err;}
 }
 document.addEventListener('DOMContentLoaded',()=>{
+ window.addEventListener('pageshow',handlePageReturn);
+ document.addEventListener('visibilitychange',handleVisibilityChange);
+ document.addEventListener('resume',handlePageResume);
+ if(document.wasDiscarded)showResumeNotice('Your browser unloaded this tab while it was inactive. Sign in and check your current status before submitting anything again.');
+ el('resumeReload').onclick=()=>{
+  if(busy)return;
+  if(!credential)return showResumeNotice('Your previous sign-in is no longer available. Please sign in again.');
+  loadSignedInRecord(); // READ ONLY: never automatically retry a write operation.
+ };
  regions.forEach(x=>el('region').add(new Option(x,x)));
  Object.entries(fields).forEach(([id,label])=>el('field').add(new Option(label,id)));
  el('region').addEventListener('change',outside);
@@ -182,8 +250,8 @@ document.addEventListener('DOMContentLoaded',()=>{
  el('sendCorrection').onclick=async()=>{const v=el('newValue').value.trim();if(!v)return feedback('error','Enter the proposed correct value.');const r=await operate('correct',{field:el('field').value,value:v});if(r){hide('correction');el('toggleCorrection').setAttribute('aria-expanded','false');el('newValue').value='';}};
  el('checkStatus').onclick=checkStatus;el('retryPending').onclick=()=>retryPending();
  el('adminCheckStatus').onclick=checkStatus;el('adminRetryPending').onclick=()=>retryPending(el('adminRetryPending').dataset.op);
- const signOut=()=>{if(busy)return;credential=null;account=null;admin=false;pendingActions.clear();clearFeedback();hide('loadingView');hide('profile');hide('admin');hide('login',false);hide('appFeedback');hide('notice');document.body.classList.remove('signed-in');el('details').replaceChildren();if(window.google?.accounts?.id)google.accounts.id.disableAutoSelect();};
- el('signout').onclick=signOut;el('signoutAdmin').onclick=signOut;
+ const signOut=()=>{if(busy)return;credential=null;account=null;admin=false;pendingActions.clear();clearFeedback();hide('loadingView');hide('profile');hide('admin');hide('login',false);hide('resumeNotice');hide('appFeedback');hide('notice');document.body.classList.remove('signed-in');el('details').replaceChildren();if(window.google?.accounts?.id)google.accounts.id.disableAutoSelect();};
+ el('signout').onclick=signOut;el('signoutAdmin').onclick=signOut;el('resumeSignIn').onclick=signOut;
  el('refreshAdmin').onclick=loadAdmin;
  for(const [id,dimension,delta] of [['prevRecords','records',-25],['nextRecords','records',25],['prevPending','pending',-25],['nextPending','pending',25]])el(id).onclick=()=>{if(dimension==='records')recordOffset=Math.max(0,recordOffset+delta);else pendingOffset=Math.max(0,pendingOffset+delta);loadAdmin();};
  let searchTimer;el('search').oninput=()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{if(busy)return;recordOffset=0;pendingOffset=0;loadAdmin();},500);};
