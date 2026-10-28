@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="GhIE–UMaT Student Chapter 2026 registration information verification portal.">
+  <title>Student Information Verification | GhIE–UMaT Student Chapter</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="config.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="institutional-identity" aria-label="GhIE and UMaT Student Chapter">
+        <div class="logo-pair">
+          <div class="ghie-identity" aria-label="Ghana Institution of Engineering">
+            <span class="ghie-name">GhIE</span>
+            <img src="assets/optimized/ghie-image-tight.png" alt="" width="70" height="23" class="ghie-supplied-art" title="Supplied GhIE blue graphic">
+          </div>
+          <span class="identity-separator" aria-hidden="true"></span>
+          <img class="umat-crest" src="assets/optimized/umat-crest-tight.png" alt="University of Mines and Technology crest" width="56" height="70">
+        </div>
+        <div class="identity-copy">
+          <div class="identity-heading">Ghana Institution of Engineering <span class="abbreviation">(GhIE)</span></div>
+          <div class="identity-subtitle">University of Mines and Technology (UMaT) Student Chapter</div>
+        </div>
+      </div>
+      <div class="header-context"><span class="context-dot" aria-hidden="true"></span>2026 Registration Verification</div>
+    </div>
+  </header>
+
+  <main id="main" class="site-main">
+    <section class="intro" aria-labelledby="page-heading">
+      <div class="intro-copy">
+        <span class="eyebrow">STUDENT SERVICES <span class="eyebrow-rule" aria-hidden="true"></span> 2026</span>
+        <h1 id="page-heading">Student Information<br><span>Verification Portal</span></h1>
+        <p class="intro-lead">Check your chapter registration details before they are prepared for headquarters submission.</p>
+        <p class="intro-detail">Review the information on file, confirm it is accurate, or submit a correction for an administrator to review.</p>
+      </div>
+      <aside class="process-card" aria-label="Verification process">
+        <p class="process-kicker">YOUR VERIFICATION PROCESS</p>
+        <ol class="process-steps">
+          <li><span class="step-number">01</span><span><strong>Sign in securely</strong><small>Use your registered Google account</small></span></li>
+          <li><span class="step-number">02</span><span><strong>Review your details</strong><small>Check your reference number and information</small></span></li>
+          <li><span class="step-number">03</span><span><strong>Confirm or request a correction</strong><small>Complete your registration review</small></span></li>
+        </ol>
+      </aside>
+    </section>
+
+    <div id="appFeedback" class="global-feedback hide" role="alert" aria-live="assertive"></div>
+    <div id="activity" class="activity hide" role="status" aria-live="polite"><span class="spinner" aria-hidden="true"></span> Processing your request…</div>
+
+    <section class="panel login-panel" id="login" aria-labelledby="login-title">
+      <div class="login-accent" aria-hidden="true"></div>
+      <div class="login-body">
+        <div class="section-heading"><span class="small-icon" aria-hidden="true">✓</span><div><p class="section-kicker">SECURE ACCESS</p><h2 id="login-title">Sign in to review your record</h2></div></div>
+        <p class="section-description">Use the Google account associated with the email you provided during chapter registration. You can only access your own information.</p>
+        <div id="signin" class="signin-slot" aria-label="Google Sign-In"></div>
+        <p class="inline-note"><span aria-hidden="true">ⓘ</span> Your student reference number alone cannot be used to sign in.</p>
+      </div>
+      <div class="login-aside"><p class="subtle-label">PLEASE NOTE</p><p>This portal is for <strong>information verification only.</strong> Payments and financial clearance are managed separately.</p></div>
+    </section>
+
+    <section class="panel profile-panel hide" id="profile" aria-labelledby="profile-title">
+      <div class="panel-topline"><div><span class="section-kicker">STUDENT RECORD</span><h2 id="profile-title">Review your registration information</h2><p class="section-description">Please check each field carefully. The reference number should contain digits only; a valid format does not guarantee the number itself is correct.</p></div><button id="signout" type="button" class="button-secondary button-compact">Sign out</button></div>
+      <div class="status-strip"><div><span class="status-label">VERIFICATION STATUS</span><strong id="verificationStatus" class="status-text">Review required</strong></div><span class="status-icon" aria-hidden="true">●</span></div>
+      <div id="notice" class="notice hide" role="status" aria-live="polite"></div>
+      <section class="profile-section" aria-labelledby="details-heading">
+        <div class="section-heading compact"><span class="section-number" aria-hidden="true">01</span><div><h3 id="details-heading">Personal and academic details</h3><p>Compare these values against your registration information.</p></div></div>
+        <div class="detailgrid" id="details"></div>
+        <div class="photo" id="photo"></div>
+      </section>
+      <section class="profile-section" aria-labelledby="region-heading">
+        <div class="section-heading compact"><span class="section-number" aria-hidden="true">02</span><div><h3 id="region-heading">Region of Origin</h3><p>Required for preparation of headquarters registration details.</p></div></div>
+        <div class="form-row"><label for="region">Select your Region of Origin <span class="required">*</span></label><select id="region" required><option value="">Select a region</option></select></div>
+        <div id="outside" class="outside-fields hide"><div class="form-row"><label for="country">Country <span class="required">*</span></label><input id="country" maxlength="80" autocomplete="country-name"></div><div class="form-row"><label for="province">State / Province (if applicable)</label><input id="province" maxlength="80"></div></div>
+      </section>
+      <section class="profile-section final-step" aria-labelledby="action-heading">
+        <div class="section-heading compact"><span class="section-number" aria-hidden="true">03</span><div><h3 id="action-heading">Complete your review</h3><p>Confirm accurate details or propose a correction. Corrections are reviewed before they take effect.</p></div></div>
+        <div class="actions"><button id="confirm" type="button" class="button-primary">Confirm my details <span aria-hidden="true">✓</span></button><button type="button" class="button-secondary" id="toggleCorrection" aria-expanded="false" aria-controls="correction">Request a correction</button></div>
+        <div id="correction" class="correction-box hide"><h4>Propose a correction</h4><p>Your proposed value will be reviewed by a chapter administrator. Your original submission remains unchanged.</p><div class="form-row"><label for="field">Field to correct</label><select id="field"></select></div><div class="form-row"><label for="newValue">Proposed correct value</label><input id="newValue" maxlength="200" placeholder="Enter the correct information"></div><button id="sendCorrection" type="button" class="button-primary">Submit correction for review</button></div>
+      </section>
+    </section>
+
+    <section class="panel admin-panel hide" id="admin" aria-labelledby="admin-title">
+      <div class="panel-topline"><div><p class="section-kicker">AUTHORIZED CHAPTER ACCESS</p><h2 id="admin-title">Administrator dashboard</h2><p class="section-description">Review student verification and proposed corrections.</p></div><div class="admin-header-actions"><button class="button-secondary button-compact" type="button" id="refreshAdmin">Refresh</button><button class="button-secondary button-compact" type="button" id="signoutAdmin">Sign out</button></div></div>
+      <div class="admin-metrics" id="adminMetrics" aria-label="Administrator summary"><div class="metric"><small>Student records</small><strong id="metricRecords">—</strong></div><div class="metric"><small>Pending corrections</small><strong id="metricPending">—</strong></div><div class="metric"><small>Registration-ready (current page)</small><strong id="metricReady">—</strong></div></div>
+      <div class="search-box"><label for="search">Search student records</label><p class="form-hint">Search by name, reference number, programme or academic level.</p><input type="search" id="search" placeholder="Search records" autocomplete="off"></div>
+      <div class="sr-only" role="status" aria-live="polite" id="summary"></div>
+      <section class="admin-section" aria-labelledby="pending-heading"><div class="admin-section-heading"><h3 id="pending-heading">Pending correction requests</h3><span class="subtle-label">ADMIN REVIEW</span></div><div id="pending" class="admin-list" aria-live="polite"></div><nav class="pagination" aria-label="Pending corrections pagination"><button class="button-secondary button-compact" type="button" id="prevPending">Previous</button><span id="pendingPageInfo" class="page-indicator">—</span><button class="button-secondary button-compact" type="button" id="nextPending">Next</button></nav></section>
+      <section class="admin-section" aria-labelledby="records-heading"><div class="admin-section-heading"><h3 id="records-heading">Student records</h3><span class="subtle-label">REGISTRATION PREPARATION</span></div><div id="records" class="records admin-list" aria-live="polite"></div><nav class="pagination" aria-label="Student records pagination"><button class="button-secondary button-compact" type="button" id="prevRecords">Previous</button><span id="recordPageInfo" class="page-indicator">—</span><button class="button-secondary button-compact" type="button" id="nextRecords">Next</button></nav></section>
+    </section>
+
+    <div class="privacy-inline"><strong>Privacy reminder</strong><p>Student information shown here is used for chapter registration verification. Access is limited to authenticated students and authorized chapter administrators.</p></div>
+  </main>
+
+  <footer class="site-footer"><div class="footer-inner"><div><strong>GhIE–UMaT Student Chapter</strong><span>Student Information Verification Portal</span></div><div class="footer-copy">© 2026 GhIE–UMaT Student Chapter. All rights reserved.<span>For authorized student and chapter administrative use.</span></div></div></footer>
+  <iframe name="bridge" id="bridge" title="Secure backend communication" class="hide"></iframe>
+  <form id="transport" method="POST" target="bridge" class="hide"><input type="hidden" name="payload" id="payload"></form>
+</body>
+</html>
