@@ -17,11 +17,28 @@ function hide(id,yes=true){el(id).classList.toggle('hide',yes);}
 function uuid(){return crypto.randomUUID().replaceAll('-','');}
 function esc(s){return String(s??'');} // All user-supplied data is rendered with textContent.
 function node(tag,txt,cls){const e=document.createElement(tag);if(txt!==undefined)e.textContent=esc(txt);if(cls)e.className=cls;return e;}
+// HTML Service places its response script in a Google-owned descendant of the form target iframe.
+// Trust only that frame tree, an Apps Script response origin, and this request's fresh nonce.
+function isBridgeDescendant(source, bridge){
+ if(!source||!bridge)return false;
+ try{for(let depth=0;depth<8;depth++){
+  if(source===bridge)return true;
+  const parent=source.parent;if(!parent||parent===source)return false;
+  source=parent;
+ }}catch(_){return false;}
+ return false;
+}
+function isExpectedBridgeResponse(event,nonce){
+ if(!isBridgeDescendant(event.source,el('bridge').contentWindow))return false;
+ if(typeof event.origin!=='string'||!/^https:\/\/(?:[a-z0-9-]+-)?script\.googleusercontent\.com$/i.test(event.origin))return false;
+ const v=event.data;
+ return !!(v&&typeof v==='object'&&!Array.isArray(v)&&v.nonce===nonce&&typeof v.ok==='boolean');
+}
 function send(op,payload={}){if(!credential)return Promise.reject(Error('Please sign in again'));
  const nonce=uuid(),transport=el('transport');if(!config.endpoint||!config.endpoint.startsWith('https://script.google.com/macros/s/'))return Promise.reject(Error('Invalid backend configuration'));
  return new Promise((resolve,reject)=>{if(busy)return reject(Error('Finish the current request first'));busy=true;const activity=el('activity');if(activity)activity.classList.remove('hide');const timer=setTimeout(()=>{cleanup();reject(Error('Request timed out. Check your connection or backend deployment.'));},25000);
  function cleanup(){clearTimeout(timer);window.removeEventListener('message',onMsg);busy=false;if(activity)activity.classList.add('hide');}
- function onMsg(event){if(event.source!==el('bridge').contentWindow||event.origin==='null'||!/^https:\/\/[a-z0-9.-]+$/i.test(event.origin)||!(/\.googleusercontent\.com$/.test(new URL(event.origin).hostname)||/\.google\.com$/.test(new URL(event.origin).hostname)))return;const v=event.data;if(!v||v.nonce!==nonce)return;cleanup();v.ok?resolve(v.value):reject(Error(v.error||'Request failed'));}
+ function onMsg(event){if(!isExpectedBridgeResponse(event,nonce))return;const v=event.data;cleanup();v.ok?resolve(v.value):reject(Error(v.error||'Request failed'));}
  window.addEventListener('message',onMsg);transport.action=config.endpoint;el('payload').value=JSON.stringify({op,token:credential,nonce,...payload});transport.submit();});}
 function render(data){account=data;admin=!!data.admin;document.body.classList.add('signed-in');hide('appFeedback');hide('login');hide('profile',!!data.adminOnly);hide('admin',!admin);if(data.adminOnly){alertAdminOnly();return;}const status=data.status,e=status.effective||data.record;
  const area=el('details');area.replaceChildren();for(const [key,label] of Object.entries(fields)){
