@@ -9,7 +9,6 @@
   <title>Student Information Verification | GhIE–UMaT Student Chapter</title>
   <link rel="stylesheet" href="style.css">
   <script src="config.js"></script>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -38,29 +37,23 @@
       <div class="intro-copy">
         <span class="eyebrow">STUDENT SERVICES <span class="eyebrow-rule" aria-hidden="true"></span> 2026</span>
         <h1 id="page-heading">Student Information<br><span>Verification Portal</span></h1>
-        <p class="intro-lead">Check your chapter registration details before they are prepared for headquarters submission.</p>
-        <p class="intro-detail">Review the information on file, confirm it is accurate, or submit a correction for an administrator to review.</p>
+        <p class="intro-lead">Review your original registration, confirm details and request corrections before headquarters preparation.</p>
+        <p class="intro-detail">Access uses your registered email and original student ID. This method provides limited identity assurance; only enter your own details.</p>
       </div>
       <aside class="process-card" aria-label="Verification process">
         <p class="process-kicker">YOUR VERIFICATION PROCESS</p>
         <ol class="process-steps">
-          <li><span class="step-number">01</span><span><strong>Sign in securely</strong><small>Use your registered Google account</small></span></li>
-          <li><span class="step-number">02</span><span><strong>Review your details</strong><small>Check your reference number and information</small></span></li>
-          <li><span class="step-number">03</span><span><strong>Confirm or request a correction</strong><small>Complete your registration review</small></span></li>
+          <li><span class="step-number">01</span><span><strong>Locate your registration</strong><small>Use your registered email and student ID</small></span></li>
+          <li><span class="step-number">02</span><span><strong>Review your details</strong><small>View the original registration and photograph</small></span></li>
+          <li><span class="step-number">03</span><span><strong>Confirm or correct</strong><small>Submit corrections for administrator review</small></span></li>
         </ol>
       </aside>
     </section>
 
-    <section id="resumeNotice" class="resume-notice hide" aria-labelledby="resumeTitle" role="status" aria-live="polite">
-      <h2 id="resumeTitle">Resume your verification safely</h2>
-      <p id="resumeMessage">The previous loading request may have been interrupted.</p>
-      <div class="actions"><button id="resumeReload" type="button" class="button-primary">Try loading my information</button><button id="resumeSignIn" type="button" class="button-secondary">Sign in again</button></div>
-      <p class="resume-hint">Only information retrieval is retried here. Confirmations, corrections and administrator decisions are never resubmitted automatically.</p>
-    </section>
     <div id="appFeedback" class="global-feedback hide" role="alert" aria-live="assertive"></div>
     <div id="activity" class="activity hide" role="status" aria-live="polite"><span class="spinner" aria-hidden="true"></span><span class="activity-copy"><strong id="activityText">Processing your request…</strong><small id="activityHint">Please keep this page open.</small></span></div>
     <section id="loadingView" class="panel loading-view hide" aria-label="Retrieving your registration record" role="status" aria-live="polite">
-      <span class="section-kicker">SECURE RECORD RETRIEVAL</span><h2>Opening your student record…</h2>
+      <span class="section-kicker">REGISTRATION RECORD RETRIEVAL</span><h2>Opening your student record…</h2>
       <p>We’re checking your account and retrieving the information on file.</p>
       <div class="skeleton-grid" aria-hidden="true"><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span></div>
     </section>
@@ -68,12 +61,24 @@
     <section class="panel login-panel" id="login" aria-labelledby="login-title">
       <div class="login-accent" aria-hidden="true"></div>
       <div class="login-body">
-        <div class="section-heading"><span class="small-icon" aria-hidden="true">✓</span><div><p class="section-kicker">SECURE ACCESS</p><h2 id="login-title">Sign in to review your record</h2></div></div>
-        <p class="section-description">Use the Google account associated with the email you provided during chapter registration. You can only access your own information.</p>
-        <div id="signin" class="signin-slot" aria-label="Google Sign-In"></div>
-        <p class="inline-note"><span aria-hidden="true">ⓘ</span> Your student reference number alone cannot be used to sign in.</p>
+        <div class="section-heading"><span class="small-icon" aria-hidden="true">✓</span><div><p class="section-kicker">REGISTRATION ACCESS</p><h2 id="login-title">Locate your original registration</h2></div></div>
+        <p class="section-description">Enter your registered email and original Student ID to review the registration. This simplified access does not verify your identity independently. Never use another person’s details.</p>
+        <form id="studentLookupForm" class="access-form">
+          <div class="form-row"><label for="lookupEmail">Registered Email Address</label><input id="lookupEmail" type="email" maxlength="254" autocomplete="email" required></div>
+          <div class="form-row"><label for="lookupId">Student ID / Reference Number</label><input id="lookupId" type="text" maxlength="100" autocomplete="off" required></div>
+          <button class="button-primary" type="submit" id="lookupSubmit">Continue to Verification</button>
+        </form>
+        <div id="lookupResult" class="notice hide" role="status" aria-live="polite"></div>
+        <p class="inline-note">Your access expires after 15 minutes. Keep these identifiers private; this access method is less secure than verified sign-in.</p>
       </div>
-      <div class="login-aside"><p class="subtle-label">PLEASE NOTE</p><p>This portal is for <strong>information verification only.</strong> Payments and financial clearance are managed separately.</p></div>
+      <div class="login-aside"><p class="subtle-label">ADMINISTRATOR LOGIN</p>
+        <form id="adminLoginForm" class="access-form">
+          <div class="form-row"><label for="adminEmail">Administrator Email Address</label><input type="email" id="adminEmail" maxlength="254" autocomplete="username" required></div>
+          <div class="form-row"><label for="adminPassword">Password</label><input type="password" id="adminPassword" autocomplete="current-password" required></div>
+          <button type="submit" class="button-secondary" id="adminLoginButton">Administrator Sign In</button>
+        </form>
+        <p>Administrator access is separate from student registration lookup. This TEST implementation requires independent security review.</p>
+      </div>
     </section>
 
     <section class="panel profile-panel hide" id="profile" aria-labelledby="profile-title">
@@ -106,17 +111,25 @@
       <div class="admin-banner"><span class="admin-banner-mark" aria-hidden="true">✓</span><div><strong>Authorized chapter review</strong><span>Actions are recorded and subject to server-side permissions.</span></div></div>
       <div id="adminFeedback" class="submission-feedback hide" role="status" aria-live="polite" aria-atomic="true"></div>
       <div id="adminUncertainActions" class="uncertain-actions hide"><p id="adminUncertainDetail"></p><div class="actions"><button id="adminCheckStatus" type="button" class="button-secondary">Check current status</button><button id="adminRetryPending" type="button" class="button-primary">Safe retry · same decision</button></div></div>
-      <div class="admin-metrics" id="adminMetrics" aria-label="Administrator summary"><div class="metric"><small>Student records</small><strong id="metricRecords">—</strong></div><div class="metric"><small>Pending corrections</small><strong id="metricPending">—</strong></div><div class="metric"><small>Registration-ready (current page)</small><strong id="metricReady">—</strong></div></div>
-      <div class="search-box"><label for="search">Search student records</label><p class="form-hint">Search by name, reference number, programme or academic level.</p><input type="search" id="search" placeholder="Search records" autocomplete="off"></div>
+      <div class="admin-metrics" id="adminMetrics" aria-label="Global administrator statistics">
+        <div class="metric"><small>Original registrations · global</small><strong id="metricRecords">—</strong></div>
+        <div class="metric"><small>Confirmed students · global</small><strong id="metricConfirmed">—</strong></div>
+        <div class="metric"><small>Registration-ready · global</small><strong id="metricReady">—</strong></div>
+        <div class="metric"><small>Students with pending corrections · global</small><strong id="metricPending">—</strong></div>
+        <div class="metric"><small>Later duplicate submissions · global</small><strong id="metricDuplicates">—</strong></div>
+        <div class="metric"><small>Identity cases needing review · global</small><strong id="metricConflicts">—</strong></div>
+      </div>
+      <div class="search-box"><label for="search">Search student records</label><p class="form-hint">Search by surname or other names, student reference number, or registered email. Searches run only after you submit.</p><form id="searchForm" class="search-controls"><input type="search" id="search" placeholder="Search records" autocomplete="off"><button type="submit" id="searchButton" class="button-primary">Search</button><button type="button" id="clearSearch" class="button-secondary">Clear / Reset</button></form></div>
       <div class="sr-only" role="status" aria-live="polite" id="summary"></div>
       <section class="admin-section" aria-labelledby="pending-heading"><div class="admin-section-heading"><h3 id="pending-heading">Pending correction requests</h3><span class="subtle-label">ADMIN REVIEW</span></div><div id="pending" class="admin-list" aria-live="polite"></div><nav class="pagination" aria-label="Pending corrections pagination"><button class="button-secondary button-compact" type="button" id="prevPending">Previous</button><span id="pendingPageInfo" class="page-indicator">—</span><button class="button-secondary button-compact" type="button" id="nextPending">Next</button></nav></section>
+      <section class="admin-section" aria-labelledby="duplicates-heading"><div class="admin-section-heading"><h3 id="duplicates-heading">Duplicate Registrations</h3><span class="subtle-label">ORIGINALS &amp; REVIEW CASES</span></div><div id="duplicateGroups" class="admin-list"></div></section>
       <section class="admin-section" aria-labelledby="records-heading"><div class="admin-section-heading"><h3 id="records-heading">Student records</h3><span class="subtle-label">REGISTRATION PREPARATION</span></div><div id="records" class="records admin-list" aria-live="polite"></div><nav class="pagination" aria-label="Student records pagination"><button class="button-secondary button-compact" type="button" id="prevRecords">Previous</button><span id="recordPageInfo" class="page-indicator">—</span><button class="button-secondary button-compact" type="button" id="nextRecords">Next</button></nav></section>
     </section>
 
-    <div class="privacy-inline"><strong>Privacy reminder</strong><p>Student information shown here is used for chapter registration verification. Access is limited to authenticated students and authorized chapter administrators.</p></div>
+    <div class="privacy-inline"><strong>Privacy reminder</strong><p>This chapter uses simplified email and Student ID access with limited identity assurance. Do not enter or share another student’s identifiers.</p></div>
   </main>
 
-  <footer class="site-footer"><div class="footer-inner"><div><strong>GhIE–UMaT Student Chapter</strong><span>Student Information Verification Portal</span></div><div class="footer-copy">© 2026 GhIE–UMaT Student Chapter. All rights reserved.<span>For authorized student and chapter administrative use.</span></div></div></footer>
+  <footer class="site-footer"><div class="footer-inner"><div><strong>GhIE–UMaT Student Chapter</strong><span>Student Information Verification Portal</span></div><div class="footer-copy">© 2026 GhIE–UMaT Student Chapter. All rights reserved.<span>For authorized student and chapter administrative use.</span><nav class="legal-links" aria-label="Legal information"><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a></nav></div></div></footer>
   <iframe name="bridge" id="bridge" title="Secure backend communication" class="hide"></iframe>
   <form id="transport" method="POST" target="bridge" class="hide"><input type="hidden" name="payload" id="payload"></form>
 </body>

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="Privacy information for the GhIE–UMaT Student Information Verification Portal.">
+  <link rel="canonical" href="https://ghieumat.github.io/ghie-verification-test/privacy.html">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="legal.css">
+  <title>Privacy Policy | GhIE–UMaT Student Chapter</title>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header class="site-header">
+    <div class="header-inner legal-header">
+      <a class="legal-brand" href="./" aria-label="GhIE–UMaT Student Chapter home">GhIE–UMaT Student Chapter</a>
+      <a class="legal-back" href="./">Back to verification portal <span aria-hidden="true">→</span></a>
+    </div>
+  </header>
+  <main id="main" class="legal-main">
+    <p class="section-kicker">STUDENT INFORMATION VERIFICATION PORTAL</p>
+    <h1>Privacy Policy</h1>
+    <p class="legal-updated">Effective date: 29 October 2026</p>
+    <p class="legal-lead">This policy explains how the GhIE–UMaT Student Chapter verification portal handles information when students review their registration details and when authorized chapter administrators review proposed corrections.</p>
+    <div class="legal-callout"><strong>Purpose in brief</strong><p>The portal is for registration-information verification and preparation only. It is not a payment-processing system. Do not send passwords through the student lookup form, payment receipts, or card details.</p></div>
+
+    <section><h2>1. Who operates this portal</h2>
+      <p>The portal is operated for the GhIE–UMaT Student Chapter's student registration verification process. The chapter coordinates questions about this portal and may refer a request to the relevant GhIE or UMaT office where appropriate.</p>
+    </section>
+    <section><h2>2. Information the portal handles</h2>
+      <p>Depending on your registration record and actions, the portal may handle:</p>
+      <ul>
+        <li><strong>Student lookup:</strong> the registered email and original student reference number used to locate a submission and issue a short-lived, registration-scoped access session. These identifiers do not independently verify identity.</li><li><strong>Administrator sign-in:</strong> an administrator email, a password supplied through the secure login request, and a temporary server-validated session token. Passwords are not stored as plaintext.</li>
+        <li><strong>Relevant registration details:</strong> name, student reference number, institution, programme, academic level, admission year, gender, registered email and phone details, and Region of Origin. Country or state/province may be collected if you select “Outside Ghana.”</li>
+        <li><strong>Verification and correction records:</strong> confirmation status and time, the field proposed for correction, original and proposed values, request identifier, review status, administrator decision, and relevant audit details.</li>
+        <li><strong>Photograph preview:</strong> a registration photograph associated with your record, when available and configured for private display.</li>
+        <li><strong>Technical information:</strong> limited request timing and outcome information used by the page while it is open to help diagnose delays. The frontend timing observations are held in page memory and are not designed to contain passwords, administrator session tokens, or registration payloads.</li>
+      </ul>
+      <p>The backend reads the registration source to identify the matching record. It returns only the fields intended for this verification workflow. Payment details are not displayed as part of this portal's student workflow, and the portal does not approve payments, alter payment approval records, or send payment/SMS notifications.</p>
+    </section>
+    <section><h2>3. Registration lookup and administrator access</h2>
+      <p>Student email and original student ID are used to locate the authoritative registration and provide a short-lived session that can display its details and photograph and submit confirmation or correction requests. <strong>These identifiers do not prove identity:</strong> someone else who knows both values could potentially see or change that registration. Rate limits and short sessions reduce misuse but do not eliminate this risk. The chapter must review this trade-off before any public release.</p>
+      <p>Authorized administrators use separate password-based access. The server checks an administrator allowlist and a salted password-derived verifier, and keeps temporary session records server-side. The administrator session token is held in page memory rather than deliberately placed in browser local or session storage. This TEST feature must undergo an independent security review and real execution-time checks before wider use.</p>
+    </section>
+    <section><h2>4. Why information is used</h2>
+      <p>Information is used only as needed to:</p>
+      <ul>
+        <li>locate the original registration using student identifiers and permit a limited-scope verification workflow without independent student authentication;</li>
+        <li>allow students to confirm details or propose corrections;</li>
+        <li>allow authorized chapter administrators to review correction requests and maintain an audit trail;</li>
+        <li>prepare a separate registration-ready representation for the chapter's authorized registration process;</li>
+        <li>protect the portal against unauthorized access, duplicate actions, and misuse; and</li>
+        <li>diagnose reliability problems without intentionally recording credentials or full student payloads in frontend timing observations.</li>
+      </ul>
+    </section>
+    <section><h2>5. Where information is stored and who may receive it</h2>
+      <p>Registration source information and verification records are handled through the configured Google Sheets and Google Apps Script environment. Registration photographs, where supported, remain in the configured Google Drive folder. The portal does not change Drive sharing settings or create a public sharing link; the chapter must keep that folder restricted. The website's static frontend is hosted through GitHub Pages.</p>
+      <p>Registration-scoped student access is allowed after matching the registered email and original Student ID, with lower identity assurance than verified authentication. Administrator access is separately protected with password-based sessions. Relevant information may be reviewed by authorized chapter administrators and included in registration preparation for the appropriate GhIE headquarters or registration team. Google and GitHub provide infrastructure services and may process technical information under their own terms and privacy practices. Their systems may process information in locations outside Ghana.</p>
+      <p>The chapter does not sell student personal information.</p>
+    </section>
+    <section><h2>6. Photographs</h2>
+      <p>Where a photograph is available, the backend checks that the presented short-lived student session remains bound to the original mapped registration, and that the file remains within the configured restricted Drive folder, before returning a preview. This still does not prove the person using the session owns the registration. The portal does not create a public sharing link or change the file’s sharing settings; the folder owner must ensure that folder permissions remain restricted. A preview may not be available for every file or format.</p>
+    </section>
+    <section><h2>7. Corrections and original records</h2>
+      <p>A correction submitted through the portal is a proposal and remains pending until an authorized administrator reviews it. The original registration submission is preserved; the portal records the proposal and its review separately. Confirming information or requesting a correction does not change payment status or trigger payment-related messages.</p>
+    </section>
+    <section><h2>8. Retention and deletion</h2>
+      <p>The portal does not currently offer self-service deletion. Original registration submissions are not deleted or overwritten by the verification workflow. Verification, correction, and audit records may be retained to complete registration preparation, resolve discrepancies, and preserve an appropriate administrative history.</p>
+      <p>The responsible chapter office must set and apply an approved retention and disposal schedule under applicable requirements. Signing out of the website does not delete information already held in the registration database.</p>
+    </section>
+    <section><h2>9. Security</h2>
+      <p>The system uses server-side administrator session checks, short-lived student record-scoped sessions based on email/ID identifiers, administrator allowlisting, restricted photograph previews, rate limiting and request-validation safeguards. These controls reduce risk but no internet service can guarantee absolute security. Do not share administrator credentials, and sign out when using a shared device.</p>
+    </section>
+    <section><h2>10. Your choices and privacy requests</h2>
+      <p>You may ask the GhIE–UMaT Student Chapter to explain the information used for your record, request access to or correction of your information, or raise a privacy concern. A submitted correction is not treated as approved until the administrator has reviewed it. Requests will be considered subject to applicable law and legitimate recordkeeping requirements.</p>
+      <p>For a privacy question or request, use the official GhIE–UMaT Student Chapter communication channel through which you received the verification invitation. Do not send passwords or session tokens in a privacy request.</p>
+      <p>Processing of personal information and privacy requests are subject to applicable data-protection requirements, including Ghana's Data Protection Act, 2012 (Act 843), where applicable.</p>
+    </section>
+    <section><h2>11. Changes to this policy</h2>
+      <p>If the portal's data practices change, the chapter should update this policy and its effective date before those changes are used. The current version is published on this page.</p>
+    </section>
+    <div class="legal-end"><a class="button-primary legal-button" href="./">Return to the verification portal</a><p>GhIE–UMaT Student Chapter · Student Information Verification Portal</p></div>
+  </main>
+  <footer class="site-footer"><div class="footer-inner"><div><strong>GhIE–UMaT Student Chapter</strong><span>Student Information Verification Portal</span></div><div class="footer-copy">© 2026 GhIE–UMaT Student Chapter. All rights reserved.<span>For authorized student and chapter administrative use.</span><nav class="legal-links" aria-label="Legal information"><a href="privacy.html" aria-current="page">Privacy Policy</a><a href="terms.html">Terms of Service</a></nav></div></div></footer>
+</body>
+</html>
